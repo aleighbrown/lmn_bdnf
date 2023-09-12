@@ -26,6 +26,22 @@ gene set enrichment analyses
 
 `splicing_bdnf_effect` - reads in splicing analyses from MAJIQ, annotates as CDS, 3 or 5'utr, makes plots - use table S2 for the input here
 
+`write_fasta_for_motif_hunting_logo` - reads in the results of PhosophoSitePlus kinase prediction, makes plots, also the sequence logo
+
+`plot_tf_activity` - makes the plots on TF activity
+
+
 Data
 
 `estimate_list_full` - a long format of all the BDNF and control samples outputs from GRAND-SLAM
+
+`enrichment-analysis-result-table_onehour_pvalue` - output of the PhosphoSitePlus kinase prediction tool after giving the surrounding sequence, log2FC, and pvalue of limma as input to the PhosphoSitePlus server - 1 hr
+
+`enrichment-analysis-result-table_onehour_pvalue` - output of the PhosphoSitePlus kinase prediction tool after giving the surrounding sequence, log2FC, and pvalue of limma as input to the PhosphoSitePlus server - 6 hr
+
+`new_ratio_bayesian_p_de` - basically table S1 in the manscript, contains all the differential labelling, expression, etc stuff
+
+These are the Rdata objects containing the results of DESEQ2 on the counts by featureCounts on the aligned BAM files
+`hour_one_featurecounts`
+`hour_two_featurecounts`
+`hour_six_featurecounts`
