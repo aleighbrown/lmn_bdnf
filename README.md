@@ -20,6 +20,9 @@ gene set enrichment analyses
 
 `GO_total_comparisons` - runs the GO analyses for genes by just the total RNA differential expression by time 
 
+`run_phos_de_analysis` - run limma to perform differential phosphosite analyses, also pulls back the sequence of the protein from UniProt based on the uniprot ID inorder to get the full region flanking the phosphosite for the analyses on kinase prediction
+
+`proteome_analysis` - performs the GO analyses on the significant phosphosite genes, does plotting of phospho-volcanoes
 
 Data
 
