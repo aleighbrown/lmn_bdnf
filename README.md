@@ -24,6 +24,8 @@ gene set enrichment analyses
 
 `proteome_analysis` - performs the GO analyses on the significant phosphosite genes, does plotting of phospho-volcanoes
 
+`splicing_bdnf_effect` - reads in splicing analyses from MAJIQ, annotates as CDS, 3 or 5'utr, makes plots - use table S2 for the input here
+
 Data
 
 `estimate_list_full` - a long format of all the BDNF and control samples outputs from GRAND-SLAM
