@@ -4,6 +4,7 @@ RNA-seq and proteomic analyses on i3 LMN
 Most of the analyses rely on 'new_ratio_bayesian_p_de' which is table S1 in the manuscript
 
 Scripts - in no particular order
+
 `new_ratio_functions` - contains the helper functions used in `full_merging_gene_estimates`
 
 `full_merging_gene_estimates` - combines the outputs from GRAND-SLAM and estimates the condition specific new_total_rna functions
@@ -12,6 +13,12 @@ Scripts - in no particular order
 gene set enrichment analyses
 
 `making_sample_betas` - Helper functions to draw beta distributions something like the supplementary figure S2B
+
+`slam_go_comparison_timepoints` - Runs the GO analyses for genes by the differential labelling and differential expression and time
+
+`category_plots_plus_log2_ierg` - Makes the categorization bar chart, plots the distribution of the NTR/total log2fold change by time and control/BNDF, 
+
+`GO_total_comparisons` - runs the GO analyses for genes by just the total RNA differential expression by time 
 
 
 Data
