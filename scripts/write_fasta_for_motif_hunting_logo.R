@@ -3,17 +3,18 @@ library(ggseqlogo)
 library(tidyverse)
 
 conflicted::conflict_prefer('select','dplyr')
-
+conflicted::conflicts_prefer(dplyr::filter)
 bdnf1hr_v_control = 
-    fread("bdnf1hr_v_control_phos.csv")
-bdnf6hr_v_control = fread('bdnf6hr_v_control_phos.csv')
+    fread("data/bdnf1hr_v_control_phos.csv")
+
+bdnf6hr_v_control = fread('data/bdnf6hr_v_control_phos.csv')
 
 #write the log2Fold and p-value for the kinase DE analysis https://www.phosphosite.org/kinaseLibraryAction
 bdnf1hr_v_control |> 
     mutate(uniprot_flank_larger = stringr::str_sub(seq,as.numeric(site) - 7, as.numeric(site) + 7)) |> 
     select(uniprot_flank_larger,log_fc,p_value)  |> 
     unique() |> 
-    fwrite('phospho_bdnf_1hr_for_enrichment_psp.tsv',sep = '\t',col.names = FALSE)
+    fwrite('data/phospho_bdnf_1hr_for_enrichment_psp.tsv',sep = '\t',col.names = FALSE)
 #GO categories
 bdnf1hr_kinase_enrich = fread('data/enrichment-analysis-result-table_onehour_pvalue.txt')
 bdnf6hr_kinase_enrich = fread('data/enrichment-analysis-result-table_sixhour_pvalue.txt')
@@ -104,9 +105,9 @@ adj_u_6hr = sig_to_write_6hr |>
     pull(uniprot_flank_larger) |> unique()
 
 #MAKE sequence LOGO 1 hour
-ggplot() + geom_logo( adj_u_1hr, method = 'prob',col_scheme = cs2, high_col = "#4D71B0",low_col = '#4D71B0') + theme_logo()
+ggplot() + geom_logo( adj_u_1hr, method = 'prob',col_scheme = cs2, high_col = "black",low_col = 'black') + theme_logo()
 #MAKE sequence LOGO 6 hour
-ggplot() + geom_logo( adj_u_6hr, method = 'prob',col_scheme = cs2, high_col = "#4D71B0",low_col = '#4D71B0') + theme_logo()
+ggplot() + geom_logo( adj_u_6hr, method = 'prob',col_scheme = cs2, high_col = "black",low_col = 'black') + theme_logo()
 
 
 f <- file(description = 'onehour_pvalue_sig_5aa_updown.fasta', open = "a")
