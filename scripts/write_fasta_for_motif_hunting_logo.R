@@ -19,11 +19,11 @@ bdnf1hr_v_control |>
 bdnf1hr_kinase_enrich = fread('data/enrichment-analysis-result-table_onehour_pvalue.txt')
 bdnf6hr_kinase_enrich = fread('data/enrichment-analysis-result-table_sixhour_pvalue.txt')
 
-one_kin = GOfuncR::get_anno_categories(unique(bdnf1hr_kinase_enrich$kinase))
-these_mapk = one_kin |> filter(grepl("MAPK",name)) |> pull(gene) |> unique()
-top_p = bdnf1hr_kinase_enrich |> 
-    slice_max(n = 5,dominant_enrichment_value_log2) |> 
-    pull(kinase) |> unique()
+# one_kin = GOfuncR::get_anno_categories(unique(bdnf1hr_kinase_enrich$kinase))
+# these_mapk = one_kin |> filter(grepl("MAPK",name)) |> pull(gene) |> unique()
+# top_p = bdnf1hr_kinase_enrich |> 
+#     slice_max(n = 5,dominant_enrichment_value_log2) |> 
+#     pull(kinase) |> unique()
 #re-make that plot
 
 bdnf1hr_kinase_enrich |> 
@@ -71,6 +71,10 @@ bdnf6hr_kinase_enrich |>
     ylab(expression(paste("-Lo", g[10], " enrichment p-value"))) +
     ggpubr::theme_pubr() +
     theme(legend.position = 'none') 
+
+
+# write fast bit ----------------------------------------------------------
+
 
 sig_to_write_1hr = bdnf1hr_v_control |> 
     mutate(uniprot_flank_larger = stringr::str_sub(seq,as.numeric(site) - 5, as.numeric(site) + 5)) |> 

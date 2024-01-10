@@ -1,0 +1,153 @@
+---
+title: "TF analysis plots"
+author: "Sam Bryce-Smith"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+```{r}
+total_gsea <- read_tsv("data/2023-03-05_total_rna_gsea_dorothea_tf_all_conf_levels_min_5_targets_all.tsv")
+slam_gsea <- read_tsv("data/2023-03-05_slamseq_gsea_dorothea_tf_all_conf_levels_min_5_targets_all.tsv")
+total_gsea
+slam_gsea
+```
+
+```{r}
+dorothea_conf_levels <- list(c("A", "B", "C", "D", "E"),
+  c("A", "B", "C", "D"),
+  c("A", "B", "C"),
+  c("A", "B"),
+  c("A")
+  ) %>%
+  set_names(map(., ~ paste(.x, collapse = ",")))
+
+```
+
+```{r}
+names(dorothea_conf_levels) %>%
+  set_names() %>%
+map(~ total_gsea %>%
+      filter(confidence_levels == .x) %>%
+      mutate(log10_p = -log10(padj),
+             p_alpha = if_else(padj < 0.05, 1, 0.5)
+             ) %>%
+      ggplot(aes(x = NES, y = log10_p, alpha = p_alpha)) +
+      facet_wrap("~ timepoint") +
+  geom_point(size = rel(2.5)) +
+  geom_vline(xintercept = 0, linetype = "dashed", alpha = 0.25) +
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed", alpha = 0.25) +
+  scale_alpha(guide = "none") +
+  labs(title = .x,
+       subtitle = "_1 suffix = positive targets, _-1 suffix = negative targets",
+       x = "Normalised enrichment score",
+       y = "-log10(padj)") +
+  theme_bw(base_size = 14)
+  +
+  theme(title = element_text(size = rel(1.5)),
+        axis.text = element_text(size = rel(1.5)),
+        strip.text = element_text(size = rel(1.5)))
+  )
+```
+
+```{r}
+total_gsea %>%
+  filter(timepoint == 1, confidence_levels == "A,B") %>% arrange(pval)
+```
+
+```{r}
+
+total_gsea_a <- total_gsea %>%
+  filter(confidence_levels == "A")
+
+total_gsea_a %>%
+    separate(pathway,sep = "_",into = c("tf","direction")) |> 
+mutate(regulation = ifelse(direction == "1",'Activated','Repressed')) |> 
+    mutate(plot_name = ifelse((grepl("53|CREB|STAT|ATF|MYC|SRF|JUN|SP1|KLF",tf) & padj < 0.05)|(
+        -log10(padj) > 4
+    )|
+        (timepoint == 6 & padj < 0.05)|
+        (timepoint == 2 & -log10(padj) > 2.3),tf,NA_character_)) |> 
+  mutate(log10_p = -log10(padj),
+          p_alpha = if_else(padj < 0.05, 1, 0.5),
+         p_timepoint = paste(timepoint, "hr", sep = ""),
+             ) %>% 
+  ggplot(aes(x = NES, y = log10_p, alpha = p_alpha)) +
+  facet_wrap("~ p_timepoint",nrow = 2) +
+  geom_point(size = rel(2.5),aes(color = regulation)) +
+  geom_vline(xintercept = 0, linetype = "dashed", alpha = 0.25) +
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed", alpha = 0.25) +
+    ggrepel::geom_text_repel(aes(label = plot_name,color = regulation),max.overlaps = 50,min.segment.length = 0) +
+  scale_alpha(guide = "none") +
+  scale_x_continuous(limits = c(-3, 3),
+                     breaks = seq(-3,3,1)) +
+  scale_y_continuous(limits = c(0, 6),
+                     breaks = seq(0,6,1)) +
+  labs(x = "TF enrichment score",
+       y = "-log10(padj)") +
+  theme_bw() +
+  theme() +
+    scale_color_manual(values = c("#EB4747","#ABC9FF")) +
+    theme(legend.position = 'bottom')
+
+slam_gsea |> 
+    filter(confidence_levels == 'A') %>%
+    separate(pathway,sep = "_",into = c("tf","direction")) |> 
+mutate(regulation = ifelse(direction == "1",'Activated','Repressed')) |> 
+  mutate(log10_p = -log10(padj),
+          p_alpha = if_else(padj < 0.05, 1, 0.5),
+         p_timepoint = paste(timepoint, "hr", sep = ""),
+             ) %>% 
+  ggplot(aes(x = NES, y = log10_p, alpha = p_alpha)) +
+  facet_wrap("~ p_timepoint",nrow = 2) +
+  geom_point(size = rel(2.5),aes(color = regulation)) +
+  geom_vline(xintercept = 0, linetype = "dashed", alpha = 0.25) +
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed", alpha = 0.25) +
+    ggrepel::geom_text_repel(aes(label = tf,color = regulation),max.overlaps = 50,min.segment.length = 0) +
+  scale_alpha(guide = "none") +
+  scale_x_continuous(limits = c(-3, 3),
+                     breaks = seq(-3,3,1)) +
+  scale_y_continuous(limits = c(0, 6),
+                     breaks = seq(0,6,1)) +
+  labs(x = "TF enrichment score",
+       y = "-log10(padj)") +
+  theme_bw() +
+  theme() +
+    scale_color_manual(values = c("#EB4747","#ABC9FF")) +
+    theme(legend.position = 'bottom')
+```
+
+```{r}
+c(1,2,6) %>%
+  set_names() %>%
+  map(~ total_gsea_a %>%
+        filter(timepoint == .x) %>%
+          mutate(log10_p = -log10(padj),
+          p_alpha = if_else(padj < 0.05, 1, 0.5),
+         p_timepoint = paste(timepoint, "hr", sep = ""),
+             ) %>%
+      ggplot(aes(x = NES, y = log10_p, alpha = p_alpha)) +
+        geom_point(size = rel(2.5)) +
+  geom_vline(xintercept = 0, linetype = "dashed", alpha = 0.25) +
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed", alpha = 0.25) +
+  scale_alpha(guide = "none") +
+  scale_x_continuous(limits = c(-3, 3),
+                     breaks = seq(-3,3,1)) +
+  scale_y_continuous(limits = c(0, 6),
+                     breaks = seq(0,6,1)) +
+  labs(title = paste(.x, "hr", sep = ""),
+       x = "Normalised enrichment score",
+       y = "-log10(padj)") +
+  theme_bw(base_size = 14) +
+  theme(title = element_text(size = rel(1.5)),
+        axis.text = element_text(size = rel(1.5)),
+        strip.text = element_text(size = rel(1.5)))
+  )
+```
+
+
+
