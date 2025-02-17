@@ -9,9 +9,9 @@ library(GeneOverlap)
 # shrink lfc before input -------------------------------------------------
 
 
-hour_one_featurecounts <- readRDS("hour_one_featurecounts.RDS")
-hour_two_featurecounts <- readRDS("hour_two_featurecounts.RDS")
-hour_six_featurecounts <- readRDS("hour_six_featurecounts.RDS")
+hour_one_featurecounts <- readRDS("data/hour_one_featurecounts.RDS")
+hour_two_featurecounts <- readRDS("data/hour_two_featurecounts.RDS")
+hour_six_featurecounts <- readRDS("data/hour_six_featurecounts.RDS")
 
 shrunk_one <- lfcShrink((hour_one_featurecounts$deseq_obj),"comparison_BDNF_vs_control") |> 
     as.data.frame() |> 
@@ -89,7 +89,7 @@ shrunk_other_two <- lfcShrink((dds_bdnf2),"condition_BDNF_vs__Control") |>
     mutate(ensgene = gsub("\\..*", "", ensgene)) |> 
     left_join(annotables::grch38, by = c('ensgene')) |> as.data.table()
 
-#we can quickly view the results with the function results()
+
 hour2_res = results(dds_bdnf2) |> 
     as.data.frame() |> 
     tibble::rownames_to_column('ensgene') |> 
@@ -134,7 +134,6 @@ hour2_res |>
     geom_hline(linetype = 'dashed',yintercept = 0) +
     geom_vline(linetype = 'dashed',xintercept = 0) +
     ggpubr::stat_cor(cor.coef.name = 'rho',method = 'spearman') +
-    geom_smooth(method = 'lm') +
     ggpubr::theme_pubr()
 
 shrunk_other_two |> 
@@ -150,7 +149,6 @@ shrunk_other_two |>
     geom_hline(linetype = 'dashed',yintercept = 0) +
     geom_vline(linetype = 'dashed',xintercept = 0) +
     ggpubr::stat_cor() +
-    geom_smooth(method = 'lm') +
     ggpubr::theme_pubr()
 
 # hypergeometic test -------------------------------------------
@@ -361,9 +359,12 @@ magenta_genes = data.table(ensgene = magenta_genes |> filter(!is.na(ortholog_ens
 
 
 # DOI:https://doi.org/10.1016/j.neuron.2020.07.026
-common_up_injury = readLines('common_up_injury.txt')
+common_up_injury = readLines('data/common_up_injury.txt')
 common_up_injury = data.table(ensgene = common_up_injury) |> 
     mutate(gs_name = "common_up_injury")
+
+# gsea on injury genes ----------------------------------------------------
+
 
 baseline_manipulations = rbind(up_C_P_ko,up_C_PS_ko,down_C_PS_ko,the_genes_in306,magenta_genes,common_up_injury) |> 
     dplyr::relocate(gs_name) |> 
@@ -373,7 +374,8 @@ gsea1_total_shrunk = shrunk_one |>
     # filter(n_samp_passing_bdnf >=2 & n_samp_passing_control >= 2) |>
     filter(!is.na(log2FoldChange)) |>
     select(ensgene,log2FoldChange) |> 
-    arrange(-log2FoldChange)
+    arrange(-log2FoldChange) %>% 
+    unique()
 
 gsea_vec1_total_shrunk = gsea1_total_shrunk$log2FoldChange
 names(gsea_vec1_total_shrunk) = gsea1_total_shrunk$ensgene
@@ -383,7 +385,9 @@ gsea2_total_shrunk = shrunk_two |>
     # filter(n_samp_passing_bdnf >=2 & n_samp_passing_control >= 2) |>
     filter(!is.na(log2FoldChange)) |>
     select(ensgene,log2FoldChange) |> 
-    arrange(-log2FoldChange)
+    arrange(-log2FoldChange) %>% 
+    unique()
+
 
 gsea_vec2_total_shrunk = gsea2_total_shrunk$log2FoldChange
 names(gsea_vec2_total_shrunk) = gsea2_total_shrunk$ensgene
@@ -392,7 +396,8 @@ gsea6_total_shrunk = shrunk_six |>
     # filter(n_samp_passing_bdnf >=2 & n_samp_passing_control >= 2) |>
     filter(!is.na(log2FoldChange)) |>
     select(ensgene,log2FoldChange) |> 
-    arrange(-log2FoldChange)
+    arrange(-log2FoldChange) %>% 
+    unique()
 
 gsea_vec6_total_shrunk = gsea6_total_shrunk$log2FoldChange
 names(gsea_vec6_total_shrunk) = gsea6_total_shrunk$ensgene
@@ -403,8 +408,10 @@ gsea1_new_cate = new_ratio_bayesian_p_de |>
     # filter(new_rna_sig == 'bdnf_higher_new_rna') |> 
     # filter(total_rna_sig == 'Downregulated') |> 
     filter(n_samp_passing_bdnf >=2 & n_samp_passing_control >= 2) |>
-    select(gene,log2FoldChange,log2Fold_newRNA) |> 
-    arrange(-log2Fold_newRNA)
+    select(gene,log2Fold_newRNA) |> 
+    arrange(-log2Fold_newRNA) %>% 
+    add_count(gene) %>% 
+    filter(n == 1)
 
 gsea_vec1_new = gsea1_new_cate$log2Fold_newRNA
 names(gsea_vec1_new) = gsea1_new_cate$gene
@@ -414,8 +421,10 @@ gsea2_new_cate = new_ratio_bayesian_p_de |>
     # filter(new_rna_sig == 'bdnf_higher_new_rna') |> 
     # filter(total_rna_sig == 'Downregulated') |> 
     filter(n_samp_passing_bdnf >=2 & n_samp_passing_control >= 2) |>
-    select(gene,log2FoldChange,log2Fold_newRNA) |> 
-    arrange(-log2Fold_newRNA)
+    select(gene,log2Fold_newRNA) |> 
+    arrange(-log2Fold_newRNA) %>% 
+    add_count(gene) %>% 
+    filter(n == 1)
 
 gsea_vec2_new = gsea2_new_cate$log2Fold_newRNA
 names(gsea_vec2_new) = gsea2_new_cate$gene
@@ -425,14 +434,16 @@ gsea6_new_cate = new_ratio_bayesian_p_de |>
     # filter(new_rna_sig == 'bdnf_higher_new_rna') |> 
     # filter(total_rna_sig == 'Downregulated') |> 
     filter(n_samp_passing_bdnf >=2 & n_samp_passing_control >= 2) |>
-    select(gene,log2FoldChange,log2Fold_newRNA) |> 
-    arrange(-log2Fold_newRNA)
+    select(gene,log2Fold_newRNA) |> 
+    arrange(-log2Fold_newRNA) %>% 
+    add_count(gene) %>% 
+    filter(n == 1)
 
 gsea_vec6_new = gsea6_new_cate$log2Fold_newRNA
 names(gsea_vec6_new) = gsea6_new_cate$gene
 
 
-
+set.seed(123)
 em_shrunk_1 <- clusterProfiler::GSEA(gsea_vec1_total_shrunk, TERM2GENE = baseline_manipulations,pvalueCutoff = 0.9)
 em_shrunk_2 <- clusterProfiler::GSEA(gsea_vec2_total_shrunk, TERM2GENE = baseline_manipulations,pvalueCutoff = 0.9)
 em_shrunk_6 <- clusterProfiler::GSEA(gsea_vec6_total_shrunk, TERM2GENE = baseline_manipulations,pvalueCutoff = 0.9)
@@ -441,17 +452,17 @@ em1_new <- clusterProfiler::GSEA(gsea_vec1_new, TERM2GENE = baseline_manipulatio
 em2_new <- clusterProfiler::GSEA(gsea_vec2_new, TERM2GENE = baseline_manipulations,pvalueCutoff = 0.9)
 em6_new <- clusterProfiler::GSEA(gsea_vec6_new, TERM2GENE = baseline_manipulations,pvalueCutoff = 0.9)
 
-
-clusterProfiler::ridgeplot(em_shrunk_1) + ggtitle('total 1 hr')
-clusterProfiler::ridgeplot(em_shrunk_2) + ggtitle('total 2 hr')
-clusterProfiler::ridgeplot(em_shrunk_6) + ggtitle('total 6 hr')
-
-
-
-clusterProfiler::ridgeplot(em1_new) + ggtitle('new 1 hr')
-clusterProfiler::ridgeplot(em2_new) + ggtitle('new 2 hr')
-clusterProfiler::ridgeplot(em6_new) + ggtitle('new 6 hr')
-
+# 
+# clusterProfiler::ridgeplot(em_shrunk_1) + ggtitle('total 1 hr')
+# clusterProfiler::ridgeplot(em_shrunk_2) + ggtitle('total 2 hr')
+# clusterProfiler::ridgeplot(em_shrunk_6) + ggtitle('total 6 hr')
+# 
+# 
+# 
+# clusterProfiler::ridgeplot(em1_new) + ggtitle('new 1 hr')
+# clusterProfiler::ridgeplot(em2_new) + ggtitle('new 2 hr')
+# clusterProfiler::ridgeplot(em6_new) + ggtitle('new 6 hr')
+# 
 
 
 new_rna_enrichment = rbind((em1_new@result |> as.data.table() |> 
