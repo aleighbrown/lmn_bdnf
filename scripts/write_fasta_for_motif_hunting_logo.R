@@ -109,9 +109,20 @@ adj_u_6hr = sig_to_write_6hr |>
     pull(uniprot_flank_larger) |> unique()
 
 #MAKE sequence LOGO 1 hour
-ggplot() + geom_logo( adj_u_1hr, method = 'prob',col_scheme = cs2, high_col = "black",low_col = 'black') + theme_logo()
+ggplot() + 
+    geom_logo( adj_u_1hr, method = 'prob',
+               col_scheme = cs2, 
+               high_col = "black",low_col = 'black') + 
+    theme_logo() + 
+    theme(text = element_text(size = 20)) +
+    theme(legend.position  = "none")
 #MAKE sequence LOGO 6 hour
-ggplot() + geom_logo( adj_u_6hr, method = 'prob',col_scheme = cs2, high_col = "black",low_col = 'black') + theme_logo()
+ggplot() + 
+    geom_logo( adj_u_6hr, method = 'prob',col_scheme = cs2, 
+               high_col = "black",low_col = 'black') + 
+    theme_logo() +
+    theme(text = element_text(size = 20)) +
+    theme(legend.position  = "none")
 
 
 f <- file(description = 'onehour_pvalue_sig_5aa_updown.fasta', open = "a")
