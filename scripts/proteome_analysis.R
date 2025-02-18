@@ -49,7 +49,7 @@ sixhour_total = sixhour_total %>%
 
 # GO analysis on one hours phososites -------------------------------------------
 #1h up
-bdnf1hr_v_control = fread('bdnf1hr_v_control_phos.csv')
+bdnf1hr_v_control = fread('data/bdnf1hr_v_control_phos.csv')
 
 sig_up_one <- bdnf1hr_v_control %>% filter(adj_p_val < 0.1 &
                                               log_fc > 0) %>% 
@@ -96,7 +96,7 @@ clusterProfiler::cnetplot(sig_phos_1hr) + ggtitle("BDNF 1hr\nSig DifferentPhosop
 
 
 # GO analyais on six hours phos -------------------------------------------
-bdnf6hr_v_control = fread('bdnf6hr_v_control_phos.csv')
+bdnf6hr_v_control = fread('data/bdnf6hr_v_control_phos.csv')
 
 sig_up_six <- bdnf6hr_v_control %>% filter(adj_p_val < 0.1 &
                                                log_fc > 0) %>% 

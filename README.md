@@ -30,7 +30,6 @@ gene set enrichment analyses
 
 `plot_tf_activity` - makes the plots on TF activity
 
-`bdnf_de_erki_dependent` - Use Table S4 sheets for input - performs GO and identifies proteins that are ERK-dependent as well as volcano plots on the timsTOF 
 
 Data
 
