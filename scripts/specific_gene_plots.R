@@ -60,13 +60,14 @@ total_rna_plot = base_data %>%
     facet_wrap(~gene_name,nrow = 1) +
     labs(
         title = "Total RNA",
-        x = "Time",
+        x = "Time (h)",
         y = "Log2 Fold Change"
     ) +
     theme_minimal() +
     theme(
         strip.text = element_blank(),  # Remove strip text since it's the same as above
-    )
+    ) +
+    scale_y_continuous(breaks=c(-0.5,0,0.5, 1, 1.5))
 
 # Combine the plots
 grid.arrange(new_rna_plot, total_rna_plot, ncol = 1, heights = c(1, 1))
