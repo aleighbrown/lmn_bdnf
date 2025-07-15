@@ -24,12 +24,17 @@ gene set enrichment analyses
 
 `proteome_analysis` - performs the GO analyses on the significant phosphosite genes, does plotting of phospho-volcanoes
 
-`splicing_bdnf_effect` - reads in splicing analyses from MAJIQ, annotates as CDS, 3 or 5'utr, makes plots - use table S2 for the input here
-
 `write_fasta_for_motif_hunting_logo` - reads in the results of PhosophoSitePlus kinase prediction, makes plots, also the sequence logo
 
 `plot_tf_activity` - makes the plots on TF activity
 
+`Run kinome library predictions.ipynb` - runs kinase enrichment on all detected phosphosites with p_value < 0.1, writes results back out for plotting in R
+
+`run_diff_kinase.ipynb`- from the phosphosites, runs the kinase enrichment and returns the output for plotting kinase volcano
+
+`run_diff_kinase.ipynb`- from the phosphosites, runs the kinase enrichment and returns the output for plotting kinase volcano
+
+`map_phosphorylation_sites.R` - remaps phosphosites allowing us to also report sites with equal probabilites
 
 Data
 
@@ -45,3 +50,4 @@ These are the Rdata objects containing the results of DESEQ2 on the counts by fe
 `hour_one_featurecounts`
 `hour_two_featurecounts`
 `hour_six_featurecounts`
+
