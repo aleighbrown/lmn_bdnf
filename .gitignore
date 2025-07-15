@@ -47,3 +47,5 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+scripts/.DS_Store
+scripts/output/.DS_Store
