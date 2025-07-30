@@ -79,6 +79,10 @@ one_plot = bdnf1hr_kinase_enrich |>
     # mutate(plotFill = case_when(dominant_p_value >0.01 ~ 'grey',
     #                             dominant_direction == 'upregulated set' & dominant_p_value < 0.1 ~ 'red',
     #                             dominant_direction == 'downregulated set'~ 'blue')) |> 
+    mutate(plotKinase = case_when(plotKinase == 'P90RSK' ~ "RSK1",
+                                  plotKinase == 'P70S6K' ~ "S6K1",
+                                  plotKinase == 'P70S6KB' ~ "S6K2",
+                                  TRUE ~ plotKinase)) %>% 
     ggplot(aes(x = most_sig_log2_freq_factor,
                y = -log10(most_sig_fisher_pval),
                alpha = plotAlpha)) + 
@@ -99,11 +103,10 @@ one_plot = bdnf1hr_kinase_enrich |>
 six_plot = bdnf6hr_kinase_enrich |> 
     mutate(plotAlpha = most_sig_fisher_pval < 0.01) |> 
     mutate(plotKinase = ifelse(most_sig_fisher_pval < 0.01,V1,NA_character_)) |> 
-    # mutate(plotKinase = ifelse(dominant_p_value < 0.01 & (kinase %in% these_mapk| kinase %in% top_p),kinase,NA_character_)) |> 
-    # filter(!(dominant_direction == 'upregulated set' & dominant_p_value < 0.1 & dominant_enrichment_value_log2 < 0)) |> 
-    # mutate(plotFill = case_when(dominant_p_value >0.01 ~ 'grey',
-    #                             dominant_direction == 'upregulated set' & dominant_p_value < 0.1 ~ 'red',
-    #                             dominant_direction == 'downregulated set'~ 'blue')) |> 
+    mutate(plotKinase = case_when(plotKinase == 'P90RSK' ~ "RSK1",
+                                  plotKinase == 'P70S6K' ~ "S6K1",
+                                  plotKinase == 'P70S6KB' ~ "S6K2",
+                                  TRUE ~ plotKinase)) %>% 
     ggplot(aes(x = most_sig_log2_freq_factor,
                y = -log10(most_sig_fisher_pval),
                alpha = plotAlpha)) + 
@@ -119,6 +122,6 @@ six_plot = bdnf6hr_kinase_enrich |>
     ggpubr::theme_pubr() +
     theme(legend.position = 'none') +
     theme(text = element_text(size = 18)) +
-    ggtitle('6 h BDNF treatment')
+    ggtitle('6 h BDNF treatment') 
 
 ggpubr::ggarrange(one_plot,six_plot,nrow = 1)
