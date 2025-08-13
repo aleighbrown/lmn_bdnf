@@ -1,8 +1,8 @@
 
 bdnf1hr_input = fread("data/phospho_bdnf_1hr_for_enrichment_psp_version2.tsv")
 bdnf6hr_input = fread("data/phospho_bdnf_6hr_for_enrichment_psp_version2.tsv")
-one_hour_prediction = fread("/Users/annaleigh/Documents/GitHub/lmn_bdnf/data/phospho_bdnf_1hr_kinome_library_prediction.tsv")
-six_hour_prediction = fread("/Users/annaleigh/Documents/GitHub/lmn_bdnf/data/phospho_bdnf_6hr_kinome_library_prediction.tsv")
+one_hour_prediction = fread("data/phospho_bdnf_1hr_kinome_library_prediction.tsv")
+six_hour_prediction = fread("data/phospho_bdnf_6hr_kinome_library_prediction.tsv")
 
 
 these_kianses = c("P70S6K", "P70S6KB", "P90RSK", "RSK2", "RSK3", "RSK4","ERK1","ERK2")
@@ -49,9 +49,9 @@ annotation_colors = list(
     log_fc_six = colorRampPalette(c("blue", "white", "red"))(100)
     
 )
-# default_colors = colorRampPalette((RColorBrewer::brewer.pal(n = 7, name = "RdYlBu")))(100)
+default_colors = colorRampPalette((RColorBrewer::brewer.pal(n = 7, name = "RdYlBu")))(100)
 
-pheatmap::pheatmap(tmp,cutree_rows = 3,cluster_cols = FALSE,
+pheatmap::pheatmap(tmp,cutree_rows = 4,cluster_cols = FALSE,
                    annotation_row = annotation_df,
                    annotation_colors = annotation_colors,
                    color = default_colors)    
@@ -92,28 +92,3 @@ pheatmap::pheatmap(tmp_six,cutree_rows = 3,cluster_cols = FALSE,
                    color = default_colors)    
 
 
-# GO anlyses on rsk proteins? ---------------------------------------------
-
-    
-new_ratio_bayesian_p_de <- fread("data/new_ratio_bayesian_p_de.csv") 
-new_ratio_bayesian_p_de = new_ratio_bayesian_p_de %>% 
-    dplyr::select(-gene_name) %>% 
-    mutate(gene = gsub("\\..*", "", gene)) %>%  
-    left_join(annotables::grch38 %>% dplyr::select(ensgene,symbol), by = c("gene" = "ensgene")) %>% 
-    unique()
-
-one_hour_prediction %>% 
-    left_join(bdnf1hr_input %>% distinct(gene_names,remapped_amino,phospho_position,log_fc,adj_p_val)) %>% 
-    filter(`Percentile Rank` <=5) %>% 
-    filter(kinase %in% these_kianses) %>% 
-    filter(adj_p_val < 0.1) %>% 
-    filter()
-    distinct(gene_names) %>% clipr::write_clip()
-    # filter(kinase %in% c("AKT1","AKT2","AKT3"))
-
-up_reg_phos_1hr = clusterProfiler::enrichGO(sig_up_one,
-                                            universe = unique(new_ratio_bayesian_p_de$gene),
-                                            keyType = 'ENSEMBL',
-                                            OrgDb = org.Hs.eg.db,
-                                            ont = 'ALL',
-                                            readable = TRUE)

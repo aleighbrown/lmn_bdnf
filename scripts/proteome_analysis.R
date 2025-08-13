@@ -148,13 +148,13 @@ clusterProfiler::cnetplot(sig_phos_6hr) + ggtitle("BDNF 6hr\nSig DifferentPhosop
 # volcano plot hilighting microtubles 1 hour -------------------------------------
 # microtubles = janitor::clean_names(readxl::read_excel('/Users/annaleigh/Documents/GitHub/bdnf_4su/data/Microtubule list_Mass spec.xlsx'))
 
-these_genes = c("PALLD", "KIF21A", "DMTN", "MAPRE1", "MAP2", "MAP7D1", "MAP1A", 
-  "MAP1B", "MACF1", "IQGAP2", "STMN1", "CAMSAP3", "MYO5A", "MLLT4", 
-  "MICAL3", "MPRIP", "CLASP1", "CLASP2", "TSC2", "NTRK2", "MAP2K1", "RANBP2", 
-  "MAPK1","DCX","LIN28A")
 
+these_genes = c("MACF1","MAP1A","MICAL3","MAP1B","MLLT4",
+                        "MAP2","MPRIP","PALLD",
+                        "MAP7D1","DMTN","MAPRE1","STMN1","CAMSAP3",
+                        "IQGAP2","MYO5A","CLASP1","CLASP2","NTRK2","LIN28A","TSC2")
 bdnf1hr_v_control_remaped = fread("data/phospho_bdnf_1hr_for_enrichment_psp_version2.tsv")
-fread("data/phospho_bdnf_6hr_for_enrichment_psp_version2.tsv")
+
 results_edit = bdnf1hr_v_control_remaped %>% 
     mutate(site = glue::glue("{gene_names}-{remapped_amino}{phospho_position}")) %>% 
     mutate(plotAlpha = ifelse( adj_p_val < 0.1,0.4,0.2)) %>% 
@@ -181,7 +181,7 @@ ggplot(results_edit,aes(x = log_fc, y = -log10(adj_p_val))) +
     geom_vline(xintercept = -0.5,linetype="dotted") + 
     geom_vline(xintercept = 0.5,linetype="dotted") + 
     ggpubr::theme_classic2() + 
-    geom_label_repel(aes(label = plotlabel),size = 5,min.segment.length = 0) +
+    geom_text_repel(aes(label = plotlabel),size = 5,min.segment.length = 0) +
     ylab(bquote('-Log'[10]~ 'Adjusted p-value')) + 
     xlab(bquote('Log'[2]~ 'Fold Change')) +
     theme(text = element_text(size = 25))
@@ -260,13 +260,11 @@ ggplot(ma_dync,aes(x = log_fc, y = -log10(p_value))) +
 
 # volcano plot hilighting microtubles 6 hour -------------------------------------
 
-these_genes = c("PALLD", "KIF21A", "DMTN", "MAPRE1", "MAP2", "MAP7D1", "MAP1A", 
-                "MAP1B", "MACF1", "IQGAP2", "STMN1", "CAMSAP3", "MYO5A", "MLLT4", 
-                "MICAL3", "MPRIP", "CLASP1", "CLASP2", "TSC2", "NTRK2", "MAP2K1", "RANBP2", 
-                "MAPK1","DCX","LIN28A")
 
-results_edit = bdnf6hr_v_control %>% 
-    mutate(site = glue::glue("{gene_names}-{amino_acid}{site}")) %>% 
+bdnf6hr_v_control_remaped = fread("data/phospho_bdnf_6hr_for_enrichment_psp_version2.tsv")
+
+results_edit = bdnf6hr_v_control_remaped %>% 
+    mutate(site = glue::glue("{gene_names}-{remapped_amino}{phospho_position}")) %>% 
     mutate(plotAlpha = ifelse( adj_p_val < 0.1,0.4,0.2)) %>% 
     mutate(plotAlpha = ifelse( gene_names %in% these_genes,0.8,plotAlpha)) %>% 
     mutate(plotColor = case_when(gene_names %in% these_genes  ~ "#8baac4",
@@ -291,7 +289,7 @@ ggplot(results_edit,aes(x = log_fc, y = -log10(adj_p_val))) +
     geom_vline(xintercept = -0.5,linetype="dotted") + 
     geom_vline(xintercept = 0.5,linetype="dotted") + 
     ggpubr::theme_classic2() + 
-    geom_label_repel(aes(label = plotlabel),size = 5,min.segment.length = 0) +
+    geom_text_repel(aes(label = plotlabel),size = 5,min.segment.length = 0) +
     ylab(bquote('-Log'[10]~ 'Adjusted p-value')) + 
     xlab(bquote('Log'[2]~ 'Fold Change')) +
     theme(text = element_text(size = 25))
@@ -431,3 +429,8 @@ total_sig_phos_go = clusterProfiler::enrichGO(ens_sig,
 
 clusterProfiler::dotplot(total_sig_phos_go)
 clusterProfiler::cnetplot(total_sig_phos_go)
+
+
+
+readxl::read_excel('/Users/annaleigh/Downloads/Copy of TableS2_geneclustering_GO (1).xlsx',sheet = 4) %>% 
+    filter(grepl(""))
