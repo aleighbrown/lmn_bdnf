@@ -53,3 +53,5 @@ data/.DS_Store
 *checkpoint.ipynb
 .DS_Store
 *.afdesign~lock~
+*.afdesign
+*.svg

@@ -9,18 +9,21 @@ library(patchwork)
 #FOS total and new, ACTD - 1 hour treatment
 
 #DCTN2/1I2 total and qPCR translation
-qpcr_data = fread("data/qpcr_results_bdnf.csv")
+qpcr_data = fread("data/qpcr_results_bdnf.csv") %>% 
+    filter(gene == 'DYNC1I2')
 
 estimate_list_full = fread('data/estimate_list_full.csv')
 
 qpcr_data = qpcr_data %>% 
-    mutate(condition = fct_relevel(condition, 'No treatment'))
+    mutate(condition = fct_relevel(condition, 'No treatment')) %>% 
+    mutate(value = log10(value))
 
 
 qpcr_plot = ggboxplot(qpcr_data, x = "condition", y = "value")+
     geom_jitter(height = 0, width = 0.2, alpha = 0.6) +
     stat_compare_means(aes(label = after_stat(p.signif)),
-                       method = "t.test", 
+                       method = 't.test',
+                       hide.ns = TRUE,
                        comparisons = list(c("No treatment", "BDNF"),
                                           c("BDNF", "BDNF+CHX")),
                        size = 10,
@@ -75,6 +78,7 @@ other_bois
 fos_qpcr = fread("data/fos_qpcr_results.csv")
 
 fos_q_plot = fos_qpcr %>% 
+    mutate(value = log10(value)) %>% 
     mutate(treatment = gsub("_"," ",treatment)) %>% 
     mutate(treatment = gsub("BDNF ActD","BDNF+ActD",treatment)) %>% 
     mutate(treatment = fct_relevel(treatment, 'No treatment','BDNF')) %>% 
@@ -91,7 +95,15 @@ fos_q_plot = fos_qpcr %>%
     theme(axis.title.y = element_text(size = 14)) +
     labs(
         y = str_wrap("qPCR levels normalised to GAPDH", width = 20)
-    )
+    ) +
+    stat_compare_means(aes(label = after_stat(p.signif)),
+                       method = 't.test',
+                       hide.ns = TRUE,
+                       comparisons = list(c("No treatment", "BDNF"),
+                                          c("BDNF", "BDNF+ActD")),
+                       size = 10,
+                       vjust = 1,
+                       tip.length = 0) 
     
 
 fos_new_plot = estimate_list_full %>% 
