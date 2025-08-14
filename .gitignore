@@ -49,3 +49,7 @@ po/*~
 rsconnect/
 scripts/.DS_Store
 scripts/output/.DS_Store
+data/.DS_Store
+*checkpoint.ipynb
+.DS_Store
+*.afdesign~lock~
