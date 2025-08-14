@@ -174,19 +174,45 @@ results_edit = bdnf1hr_v_control_remaped %>%
                                  TRUE ~ NA_character_))
     
 
-ggplot(results_edit,aes(x = log_fc, y = -log10(adj_p_val))) + 
-    geom_point(aes(alpha = plotAlpha),show_guide  = F,pch = 21,
-               fill = results_edit$plotColor, size = results_edit$plotSize,stroke = 0.6) + 
-    geom_hline(yintercept = -log10(0.1),linetype="dotted") + 
-    geom_vline(xintercept = -0.5,linetype="dotted") + 
-    geom_vline(xintercept = 0.5,linetype="dotted") + 
+
+# Create a mapping for amino acid codes
+aa_mapping <- c("S" = "Ser", "T" = "Thr", "Y" = "Tyr", "K" = "Lys", 
+                "R" = "Arg", "H" = "His", "D" = "Asp", "E" = "Glu",
+                "N" = "Asn", "Q" = "Gln", "C" = "Cys", "G" = "Gly",
+                "P" = "Pro", "A" = "Ala", "V" = "Val", "I" = "Ile",
+                "L" = "Leu", "M" = "Met", "F" = "Phe", "W" = "Trp")
+
+# Transform the plotlabel column
+# Transform the plotlabel column
+results_edit <- results_edit %>%
+    mutate(
+        plotlabel = case_when(
+            is.na(plotlabel) ~ NA_character_,
+            str_detect(plotlabel, "-[A-Z]\\d+$") ~ {
+                # Extract components
+                gene_part <- str_extract(plotlabel, "^[^-]+")
+                aa_letter <- str_extract(plotlabel, "(?<=-)[A-Z](?=\\d)")
+                number_part <- str_extract(plotlabel, "\\d+$")
+                
+                # Format using tilde for spacing in expressions
+                paste0(gene_part, "~", aa_mapping[aa_letter], "^", number_part)
+            },
+            TRUE ~ plotlabel
+        )
+    )
+
+
+ggplot(results_edit, aes(x = log_fc, y = -log10(adj_p_val))) + 
+    geom_point(aes(alpha = plotAlpha), show_guide = F, pch = 21,
+               fill = results_edit$plotColor, size = results_edit$plotSize, stroke = 0.6) + 
+    geom_hline(yintercept = -log10(0.1), linetype = "dotted") + 
+    geom_vline(xintercept = -0.5, linetype = "dotted") + 
+    geom_vline(xintercept = 0.5, linetype = "dotted") + 
     ggpubr::theme_classic2() + 
-    geom_text_repel(aes(label = plotlabel),size = 5,min.segment.length = 0) +
+    geom_text_repel(aes(label = plotlabel), size = 5, , parse = TRUE) +
     ylab(bquote('-Log'[10]~ 'Adjusted p-value')) + 
     xlab(bquote('Log'[2]~ 'Fold Change')) +
     theme(text = element_text(size = 25))
-
-
 
 # volcano plot higlighting top genes 1 hr ---------------------------------
 top_n = bdnf1hr_v_control %>% slice_max(abs(log_fc),n = 20) %>% pull(gene_names)
@@ -280,16 +306,31 @@ results_edit = bdnf6hr_v_control_remaped %>%
         adj_p_val >= 0.1 ~ NA_character_,
         gene_names %in% these_genes & abs(log_fc) == max_change ~ site,
         TRUE ~ NA_character_))
+results_edit <- results_edit %>%
+    mutate(
+        plotlabel = case_when(
+            is.na(plotlabel) ~ NA_character_,
+            str_detect(plotlabel, "-[A-Z]\\d+$") ~ {
+                # Extract components
+                gene_part <- str_extract(plotlabel, "^[^-]+")
+                aa_letter <- str_extract(plotlabel, "(?<=-)[A-Z](?=\\d)")
+                number_part <- str_extract(plotlabel, "\\d+$")
+                
+                # Format using tilde for spacing in expressions
+                paste0(gene_part, "~", aa_mapping[aa_letter], "^", number_part)
+            },
+            TRUE ~ plotlabel
+        )
+    )
 
-
-ggplot(results_edit,aes(x = log_fc, y = -log10(adj_p_val))) + 
-    geom_point(aes(alpha = plotAlpha),show_guide  = F,pch = 21,
-               fill = results_edit$plotColor, size = results_edit$plotSize,stroke = 0.6) + 
-    geom_hline(yintercept = -log10(0.1),linetype="dotted") + 
-    geom_vline(xintercept = -0.5,linetype="dotted") + 
-    geom_vline(xintercept = 0.5,linetype="dotted") + 
+ggplot(results_edit, aes(x = log_fc, y = -log10(adj_p_val))) + 
+    geom_point(aes(alpha = plotAlpha), show_guide = F, pch = 21,
+               fill = results_edit$plotColor, size = results_edit$plotSize, stroke = 0.6) + 
+    geom_hline(yintercept = -log10(0.1), linetype = "dotted") + 
+    geom_vline(xintercept = -0.5, linetype = "dotted") + 
+    geom_vline(xintercept = 0.5, linetype = "dotted") + 
     ggpubr::theme_classic2() + 
-    geom_text_repel(aes(label = plotlabel),size = 5,min.segment.length = 0) +
+    geom_text_repel(aes(label = plotlabel), size = 5, min.segment.length = 0, parse = TRUE) +
     ylab(bquote('-Log'[10]~ 'Adjusted p-value')) + 
     xlab(bquote('Log'[2]~ 'Fold Change')) +
     theme(text = element_text(size = 25))
