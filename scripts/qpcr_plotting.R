@@ -26,6 +26,7 @@ qpcr_plot = ggboxplot(qpcr_data, x = "condition", y = "value")+
                        hide.ns = TRUE,
                        comparisons = list(c("No treatment", "BDNF"),
                                           c("BDNF", "BDNF+CHX")),
+                       p.adjust.method = "bonferroni",  
                        size = 10,
                        vjust = 1,
                        tip.length = 0) + 
@@ -101,6 +102,8 @@ fos_q_plot = fos_qpcr %>%
                        hide.ns = TRUE,
                        comparisons = list(c("No treatment", "BDNF"),
                                           c("BDNF", "BDNF+ActD")),
+                       p.adjust.method = "bonferroni",  
+                       
                        size = 10,
                        vjust = 1,
                        tip.length = 0) 
